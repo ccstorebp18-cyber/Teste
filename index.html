@@ -28,49 +28,80 @@
 
   .hoverzone{
     position:absolute;
-    cursor:help;
-  }
-
-  .tooltip{
-    position:absolute;
-    left:0;
-    bottom:calc(100% + 6px);
-    background:#1c1f1a;
-    color:#f4f4ef;
-    font-size:13px;
-    line-height:1.4;
-    padding:9px 12px;
-    border-radius:6px;
-    width:260px;
-    max-width:80vw;
-    box-shadow:0 4px 14px rgba(0,0,0,0.25);
-    opacity:0;
-    transform:translateY(4px);
-    pointer-events:none;
-    transition:opacity 0.15s ease, transform 0.15s ease;
-    z-index:20;
-  }
-
-  .tooltip::after{
-    content:"";
-    position:absolute;
-    top:100%;
-    left:16px;
-    border:6px solid transparent;
-    border-top-color:#1c1f1a;
-  }
-
-  .hoverzone:hover .tooltip,
-  .hoverzone:focus-visible .tooltip{
-    opacity:1;
-    transform:translateY(0);
+    cursor:pointer;
+    border:none;
+    background:transparent;
+    padding:0;
+    margin:0;
   }
 
   .hoverzone:hover,
   .hoverzone:focus-visible{
     outline:none;
-    background:rgba(15,138,60,0.08);
+    background:rgba(15,138,60,0.10);
     border-radius:3px;
+  }
+
+  /* Overlay */
+  .overlay{
+    position:fixed;
+    inset:0;
+    background:#00e64d;
+    display:none;
+    flex-direction:column;
+    z-index:100;
+  }
+
+  .overlay.open{
+    display:flex;
+  }
+
+  .overlay-header{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    background:rgba(255,255,255,0.92);
+    padding:22px 24px;
+    border-bottom:1px solid rgba(0,0,0,0.08);
+  }
+
+  .overlay-header .dot{
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    border:1.5px solid #333;
+    flex:none;
+  }
+
+  .overlay-title{
+    font-family:Georgia, "Times New Roman", serif;
+    font-size:1.15rem;
+    color:#222;
+    flex:1;
+  }
+
+  .overlay-close{
+    all:unset;
+    cursor:pointer;
+    width:44px;
+    height:44px;
+    border-radius:50%;
+    background:rgba(0,0,0,0.08);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex:none;
+    transition:background 0.15s ease;
+  }
+
+  .overlay-close:hover,
+  .overlay-close:focus-visible{
+    background:rgba(0,0,0,0.16);
+  }
+
+  .overlay-close svg{
+    width:18px;
+    height:18px;
   }
 </style>
 </head>
@@ -79,30 +110,54 @@
 <div class="frame">
   <img src="flyer.jpg" alt="Syarat & Ketentuan Tugas Video Perkenalan - PKKMB Universitas Trilogi">
 
-  <span class="hoverzone" tabindex="0" style="left:8.20%; top:29.77%; width:87.43%; height:1.85%;">
-    <span class="tooltip">Format Wajib yang Harus Ada di Dalam Video: Nama lengkap atau nama panggilan.</span>
-  </span>
-
-  <span class="hoverzone" tabindex="0" style="left:8.20%; top:31.72%; width:87.43%; height:1.85%;">
-    <span class="tooltip">Format Wajib yang Harus Ada di Dalam Video: Program Studi.</span>
-  </span>
-
-  <span class="hoverzone" tabindex="0" style="left:8.20%; top:33.68%; width:87.43%; height:1.85%;">
-    <span class="tooltip">Format Wajib yang Harus Ada di Dalam Video: Alasan memilih Program Studi tersebut.</span>
-  </span>
-
-  <span class="hoverzone" tabindex="0" style="left:8.20%; top:35.63%; width:87.43%; height:1.85%;">
-    <span class="tooltip">Format Wajib yang Harus Ada di Dalam Video: Menjelaskan serta menunjukkan minat dan bakatmu secara langsung di dalam video atau dalam bentuk foto.</span>
-  </span>
-
-  <span class="hoverzone" tabindex="0" style="left:8.20%; top:37.58%; width:87.43%; height:1.85%;">
-    <span class="tooltip">Format Wajib yang Harus Ada di Dalam Video: Tiga fun fact (fakta unik) tentang dirimu.</span>
-  </span>
-
-  <span class="hoverzone" tabindex="0" style="left:8.20%; top:39.53%; width:87.43%; height:1.85%;">
-    <span class="tooltip">Format Wajib yang Harus Ada di Dalam Video: Jelaskan harapanmu dalam masa perkuliahan kedepannya.</span>
-  </span>
+  <button type="button" class="hoverzone" data-title="Nama lengkap atau nama panggilan." style="left:8.20%; top:29.77%; width:87.43%; height:1.85%;"></button>
+  <button type="button" class="hoverzone" data-title="Program Studi." style="left:8.20%; top:31.72%; width:87.43%; height:1.85%;"></button>
+  <button type="button" class="hoverzone" data-title="Alasan memilih Program Studi tersebut." style="left:8.20%; top:33.68%; width:87.43%; height:1.85%;"></button>
+  <button type="button" class="hoverzone" data-title="Menjelaskan serta menunjukkan minat dan bakatmu secara langsung di dalam video atau dalam bentuk foto." style="left:8.20%; top:35.63%; width:87.43%; height:1.85%;"></button>
+  <button type="button" class="hoverzone" data-title="Tiga fun fact (fakta unik) tentang dirimu." style="left:8.20%; top:37.58%; width:87.43%; height:1.85%;"></button>
+  <button type="button" class="hoverzone" data-title="Jelaskan harapanmu dalam masa perkuliahan kedepannya." style="left:8.20%; top:39.53%; width:87.43%; height:1.85%;"></button>
 </div>
+
+<div class="overlay" id="overlay" aria-hidden="true">
+  <div class="overlay-header">
+    <span class="dot"></span>
+    <span class="overlay-title" id="overlay-title">Nama lengkap atau nama panggilan.</span>
+    <button class="overlay-close" id="overlay-close" aria-label="Tutup">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+        <line x1="5" y1="5" x2="19" y2="19"/>
+        <line x1="19" y1="5" x2="5" y2="19"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  const overlay = document.getElementById('overlay');
+  const overlayTitle = document.getElementById('overlay-title');
+  const closeBtn = document.getElementById('overlay-close');
+  let lastFocused = null;
+
+  document.querySelectorAll('.hoverzone').forEach(btn => {
+    btn.addEventListener('click', () => {
+      overlayTitle.textContent = btn.dataset.title;
+      lastFocused = btn;
+      overlay.classList.add('open');
+      overlay.setAttribute('aria-hidden', 'false');
+      closeBtn.focus();
+    });
+  });
+
+  function closeOverlay(){
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+    if (lastFocused) lastFocused.focus();
+  }
+
+  closeBtn.addEventListener('click', closeOverlay);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) closeOverlay();
+  });
+</script>
 
 </body>
 </html>
